@@ -1,4 +1,63 @@
-<?import javafx.scene.layout.GridPane?>
-<GridPane fx:controller="sample.Controller"
-          xmlns:fx="http://javafx.com/fxml" alignment="center" hgap="10" vgap="10">
-</GridPane>
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<StackPane stylesheets="Styles.css" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.172-ea" fx:controller="clientApp.Controller">
+
+    <!--Authorization panel. User shall input login and password.-->
+    <HBox fx:id="authorizationPanel" alignment="CENTER" managed="true" visible="true" spacing="20">
+        <TextField fx:id="loginField" promptText="login"/>
+        <PasswordField fx:id="passwordField" onAction="#tryToAuth" promptText="password" />
+        <Button onAction="#tryToAuth" text="Log in" />
+    </HBox>
+
+    <!--Working panel of the cloud is accessed after authorization.-->
+    <VBox fx:id="workingPanel" managed="true" visible="false">
+        <HBox fx:id="headerHBox" alignment="CENTER">
+            <Region HBox.hgrow="ALWAYS" />
+            <Label text="Local store" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Label text="Cloud store" />
+            <Region HBox.hgrow="ALWAYS" />
+        </HBox>
+        <HBox fx:id="mainHBox" VBox.vgrow="ALWAYS">
+            <TableView fx:id="clientFile" editable="true" HBox.hgrow="ALWAYS">
+                <!--<columns>-->
+                    <!--<TableColumn fx:id="clientFileName" prefWidth="300" text="File Name">-->
+                        <!--<cellValueFactory><PropertyValueFactory property="fileName" />-->
+                        <!--</cellValueFactory>-->
+                    <!--</TableColumn>-->
+                    <!--<TableColumn fx:id="clientFileSize" prefWidth="100" text="File Size">-->
+                        <!--<cellValueFactory><PropertyValueFactory property="size" />-->
+                        <!--</cellValueFactory>-->
+                    <!--</TableColumn>-->
+                <!--</columns>-->
+            </TableView>
+            <TableView fx:id="serverFile" editable="true" HBox.hgrow="ALWAYS">
+                <!--<columns>-->
+                    <!--<TableColumn fx:id="serverFileName" prefWidth="300" text="File Name" />-->
+                    <!--<TableColumn fx:id="serverFileSize" prefWidth="100" text="File Size" />-->
+                <!--</columns>-->
+            </TableView>
+        </HBox>
+        <HBox fx:id="bottomHBox" alignment="BOTTOM_CENTER">
+            <Button fx:id="sendFile" text="Send file" />
+            <Button fx:id="deleteFileClient" text="Delete file" />
+            <Button fx:id="resetClient" text="Reset" />
+            <Button fx:id="downloadFile" text="Download file" />
+            <Button fx:id="deleteFileServer" text="Delete file" />
+            <Button fx:id="resetServer" text="Reset" />
+        </HBox>
+    </VBox>
+</StackPane>

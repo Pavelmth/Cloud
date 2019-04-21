@@ -1,0 +1,47 @@
+StackPane {
+
+}
+
+VBox {
+
+}
+
+HBox {
+
+}
+
+Label {
+
+}
+
+Button {
+    -fx-border-radius: 0;
+    -fx-pref-width: 133;
+    -fx-pref-height: 30;
+}
+
+TableColumn {
+
+}
+
+#authorizationPanel {
+    -fx-background-image: url('images/cloud.png');
+    -fx-background-size: 800 454;
+    -fx-background-position: center center;
+    -fx-background-repeat: stretch;
+}
+
+#headerHBox {
+    -fx-font-weight: bold;
+    -fx-font-size: 16;
+    -fx-background-color: #c1c1c1;
+    -fx-pref-height: 25;
+}
+
+#mainHBox {
+    -fx-background-color: #e0e0e0;
+}
+
+#bottomHBox {
+    -fx-background-color: #c1c1c1;
+}

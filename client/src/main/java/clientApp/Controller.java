@@ -1,5 +1,7 @@
 package clientApp;
 
+import clientApp.protocol.DownloadFiles;
+import clientApp.protocol.SendFiles;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
@@ -14,7 +16,7 @@ import java.net.Socket;
 public class Controller {
     final String IP_ADRESS = "localhost";
     final int PORT = 8091;
-    final String FOLDER = "client/folder/";
+    final String CLIENT_FOLDER = "client/folder/";
 
     Socket socket;
     FileOutputStream out;
@@ -37,7 +39,12 @@ public class Controller {
             initializeFilesTable();
 
             if (socket == null || socket.isClosed()) {
-                connect();
+//create  socket
+                try {
+                    socket = new Socket(IP_ADRESS, PORT);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
 
         } else {
@@ -50,6 +57,16 @@ public class Controller {
         setAuthorized(true);
     }
 
+    public void sendFile(ActionEvent actionEvent) {
+        String fileName = "location.txt";
+        new SendFiles(socket, CLIENT_FOLDER, fileName);
+    }
+
+    public void downloadFile(ActionEvent actionEvent) {
+        String fileName = "location.txt";
+        new DownloadFiles(socket, CLIENT_FOLDER, fileName);
+    }
+
     public void initializeFilesTable() {
         TableColumn<UserFile, String> tcName = new TableColumn<>("Name");
         tcName.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -59,34 +76,9 @@ public class Controller {
 
         clientFile.getColumns().addAll(tcName, tcSize);
 
-//        UserFilesStatic userFiles = new UserFilesStatic();
+//        UserFiles userFiles = new UserFiles();
 //        userFiles.scanFiles();
 
         clientFile.getItems().addAll();
-    }
-
-    public void connect() {
-        try {
-            socket = new Socket(IP_ADRESS, PORT);
-            //* take stream for receiving data from server
-            InputStream in = socket.getInputStream();
-            //* write to socket
-            OutputStream out = socket.getOutputStream();
-            //* reference to file
-            File file = new File(FOLDER + "location.txt");
-            //* read data from file
-            FileInputStream inFile = new FileInputStream(file);
-            //*
-            //out.write(in.available());
-
-            byte[] arrBytes = new byte[inFile.available()];
-            inFile.read(arrBytes);
-            out.write(arrBytes);
-
-            System.out.println(arrBytes);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }

@@ -3,11 +3,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 import clientApp.Controller;
 import clientApp.UserFiles;
-import clientApp.UserFilesStatic;
 
 public class TestClient {
     UserFiles userFiles;
-    UserFilesStatic userFilesStatic;
     Controller controller;
 
     @Before
@@ -23,14 +21,7 @@ public class TestClient {
 
     @Ignore
     @Test
-    public void MyTest2() {
-        userFilesStatic = new UserFilesStatic();
-        userFilesStatic.getUseFiles();
-    }
-
-    @Test
     public void Controller() {
         controller = new Controller();
-        controller.connect();
     }
 }

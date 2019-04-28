@@ -47,15 +47,15 @@
             <TableView fx:id="serverFile" editable="true" HBox.hgrow="ALWAYS">
                 <!--<columns>-->
                     <!--<TableColumn fx:id="serverFileName" prefWidth="300" text="File Name" />-->
-                    <!--<TableColumn fx:id="serverFileSize" prefWidth="100" text="File Size" />-->
+                    <!--<TableColumn fx:id="serverFil eSize" prefWidth="100" text="File Size" />-->
                 <!--</columns>-->
             </TableView>
         </HBox>
         <HBox fx:id="bottomHBox" alignment="BOTTOM_CENTER">
-            <Button fx:id="sendFile" text="Send file" />
+            <Button onAction="#sendFile" fx:id="sendFile" text="Send file" />
             <Button fx:id="deleteFileClient" text="Delete file" />
             <Button fx:id="resetClient" text="Reset" />
-            <Button fx:id="downloadFile" text="Download file" />
+            <Button onAction="#downloadFile" fx:id="downloadFile" text="Download file" />
             <Button fx:id="deleteFileServer" text="Delete file" />
             <Button fx:id="resetServer" text="Reset" />
         </HBox>

@@ -12,7 +12,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
 public class ClientHandler extends ChannelInboundHandlerAdapter {
-//    private ByteBuf accumulator;
+    private ByteBuf accumulator;
 
     private CommandType commandType = CommandType.EMPTY;
     private ActionStage actionStage = ActionStage.GETTING_COMMAND; //later to add authorization AUTHORIZED type
@@ -21,11 +21,11 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
     private int nameLength;
     String fileName = null;
 
-//    @Override
-//    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-//        ByteBufAllocator allocator = ctx.alloc();
-//        accumulator = allocator.directBuffer(1024 * 1024 * 1, 5 * 1024 * 1024);
-//    }
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        ByteBufAllocator allocator = ctx.alloc();
+        accumulator = allocator.directBuffer(1024 * 1024 * 1, 5 * 1024 * 1024);
+    }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -69,15 +69,21 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                     System.out.println(fileName);
                 }
                 if (actionStage.equals(ActionStage.GETTING_FILE_CONTENT)) {
-//                    accumulator.writeBytes(buf);
-                    //* create a file
+
+                   //* create a file
                     FileOutputStream outFile = new FileOutputStream("server/folder/" + fileName);
 
-                    while (buf.isReadable()) {
-                        outFile.write(buf.readByte());
-                    }
+//                    while (buf.isReadable()) {
+//                        outFile.write(buf.readByte());
+//                    }
 
+                    System.out.println("start write to accumulator");
+                    accumulator.writeBytes(buf);
                     buf.release();
+                    System.out.println("buf released");
+
+                    outFile.write(accumulator.array());
+
                     outFile.close();
                     actionStage = ActionStage.GETTING_COMMAND;
                 }

@@ -1,0 +1,12 @@
+package cloudNettyServer.enums;
+
+public enum ActionStage {
+    AUTHORIZED,
+    UNAUTHORIZED,
+    GETTING_COMMAND,
+    GETTING_FILE_LENGTH,
+    GETTING_FILE_NAME_LENGTH,
+    GETTING_FILE_NAME,
+    GETTING_FILE_CONTENT,
+    SENDING_FILE_CONTENT
+}

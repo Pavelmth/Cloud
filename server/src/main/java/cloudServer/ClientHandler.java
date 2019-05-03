@@ -1,8 +1,5 @@
 package cloudServer;
 
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-
 import java.io.*;
 import java.net.Socket;
 
@@ -25,11 +22,23 @@ public class ClientHandler {
 
             long start = System.currentTimeMillis();
 
-            //* create file
-            FileOutputStream outFile = new FileOutputStream(UESER_FOLDER + "location.txt");
-
             //* take stream for receiving data from client by BufferedInputStream
-            BufferedInputStream buffIn = new BufferedInputStream(socket.getInputStream());
+            DataInputStream buffIn = new DataInputStream(socket.getInputStream());
+
+            Byte aByte = buffIn.readByte();
+            System.out.println(aByte);
+
+            Long aLong = buffIn.readLong();
+            System.out.println(aLong);
+
+            Integer anInteger = buffIn.readInt();
+            System.out.println(anInteger);
+
+            String str = buffIn.readUTF();
+            System.out.println(str);
+
+            //* create file
+            FileOutputStream outFile = new FileOutputStream(UESER_FOLDER + str);
 
             byte[] arr = new byte[8192];
 

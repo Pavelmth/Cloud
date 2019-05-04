@@ -19,8 +19,8 @@ public class Controller {
     final String CLIENT_FOLDER = "client/folder/";
 
     Socket socket;
-    FileOutputStream out;
-    FileInputStream in;
+    DataOutputStream out;
+    DataInputStream in;
 
     @FXML
     HBox authorizationPanel;
@@ -38,33 +38,66 @@ public class Controller {
 
             initializeFilesTable();
 
-            if (socket == null || socket.isClosed()) {
-//create  socket
-                try {
-                    socket = new Socket(IP_ADRESS, PORT);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
         } else {
             authorizationPanel.setVisible(isAuthorized);
             workingPanel.setVisible(!isAuthorized);
         }
     }
 
+    public void connect() {
+        try {
+            socket = new Socket(IP_ADRESS, PORT);
+            in = new DataInputStream(socket.getInputStream());
+            out = new DataOutputStream(socket.getOutputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void tryToAuth(ActionEvent actionEvent) {
+        if (socket == null || socket.isClosed()) {
+            connect();
+        }
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        new ClientAuthService(out);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+
         setAuthorized(true);
     }
 
     public void sendFile(ActionEvent actionEvent) {
         String fileName = "location.txt";
-        new SendFiles(socket, CLIENT_FOLDER, fileName);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    new SendFiles(out, CLIENT_FOLDER, fileName);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     public void downloadFile(ActionEvent actionEvent) {
-        String fileName = "location.txt";
-        new DownloadFiles(socket, CLIENT_FOLDER, fileName);
+        String fileName = "fileInServer.txt";
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    new DownloadFiles(out, in, CLIENT_FOLDER, fileName);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     public void initializeFilesTable() {

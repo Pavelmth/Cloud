@@ -4,11 +4,11 @@ import java.io.*;
 import java.net.Socket;
 
 public class SendFiles {
-    public SendFiles(Socket socket, String clientFolder, String fileName) {
+    public SendFiles(DataOutputStream buffOut, String clientFolder, String fileName) throws IOException {
         try {
             long start = System.currentTimeMillis();
             //* for sending to socket with BufferedOutputStream
-            DataOutputStream buffOut = new DataOutputStream(socket.getOutputStream());
+//            DataOutputStream buffOut = new DataOutputStream(socket.getOutputStream());
             //* reference to file
             File file = new File(clientFolder + fileName);
             //* open connection to file
@@ -44,10 +44,9 @@ public class SendFiles {
             System.out.println("The file data '" + fileName + "' has been sent");
 
             System.out.println("Time " + (System.currentTimeMillis() - start));
-            buffOut.close();
             inFile.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } finally {
+
         }
     }
 }

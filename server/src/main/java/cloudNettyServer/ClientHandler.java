@@ -32,7 +32,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
         ByteBuf buf = ((ByteBuf) msg);
 
         if (actionStage.equals(ActionStage.GETTING_COMMAND)) {
-            byte firstByte = buf.readByte();
+             byte firstByte = buf.readByte();
             commandType = CommandType.getDataTypeFromByte(firstByte);
 
             switch (commandType) {
@@ -50,17 +50,26 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
             case SEND_FILES: /*getting file from client*/
                 //getting a file length
                 if (actionStage.equals(ActionStage.GETTING_FILE_LENGTH)) {
+                    if (buf.readableBytes() < 8) { //waiting for long
+                        return;
+                    }
                     fileLength = buf.readLong();
                     actionStage = ActionStage.GETTING_FILE_NAME_LENGTH;
                     System.out.println("file size is " + fileLength);
                 }
                 //getting a file name length
                 if (actionStage.equals(ActionStage.GETTING_FILE_NAME_LENGTH)) {
+                    if (buf.readableBytes() < 4) { //waiting for int
+                        return;
+                    }
                     nameLength = buf.readInt();
                     actionStage = ActionStage.GETTING_FILE_NAME;
                     System.out.println("file name length is " + nameLength);
                 }
                 //getting a file name
+                if (buf.readableBytes() < nameLength) { //waiting for all the letters of the name
+                    return;
+                }
                 if (actionStage.equals(ActionStage.GETTING_FILE_NAME)) {
                     byte[] array = new byte[nameLength];
                     buf.readBytes(array, 0, nameLength);
@@ -77,20 +86,36 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 //                        outFile.write(buf.readByte());
 //                    }
 
-                    System.out.println("start write to accumulator");
-                    accumulator.writeBytes(buf);
-                    buf.release();
-                    System.out.println("buf released");
 
-                    outFile.write(accumulator.array());
 
+//                    outFile.write((Byte) msg);
+//
+//                    System.out.println("start write to accumulator");
+//                    accumulator.writeBytes(buf);
+//                    buf.release();
+//                    System.out.println("buf released");
+//
+//
                     outFile.close();
                     actionStage = ActionStage.GETTING_COMMAND;
                 }
                 break;
             case DOWNLOAD_FILES: /*download file from server*/
                 System.out.println("download file");
+                //getting a file name length
                 if (actionStage.equals(ActionStage.GETTING_FILE_NAME_LENGTH)) {
+                    if (buf.readableBytes() < 4) { //waiting for int
+                        return;
+                    }
+                    nameLength = buf.readInt();
+                    actionStage = ActionStage.GETTING_FILE_NAME;
+                    System.out.println("file name length is " + nameLength);
+                }
+                //getting a file name
+                if (actionStage.equals(ActionStage.GETTING_FILE_NAME)) {
+                    if (buf.readableBytes() < nameLength) { //waiting for all the letters of the name
+                        return;
+                    }
                     byte[] array = new byte[nameLength];
                     buf.readBytes(array, 0, nameLength);
                     fileName = new String(array);
@@ -99,7 +124,10 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                 }
                 if (actionStage.equals(ActionStage.SENDING_FILE_CONTENT)) {
                     FileInputStream inFile = new FileInputStream("server/folder/" + fileName);
+//                    ctx.writeAndFlush(inFile.read());
 
+//                    ctx.writeAndFlush("Java\n");
+                    inFile.close();
                     actionStage = ActionStage.GETTING_COMMAND;
                 }
                 //

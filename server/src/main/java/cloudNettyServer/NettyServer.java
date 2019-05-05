@@ -1,5 +1,8 @@
 package cloudNettyServer;
 
+import cloudNettyServer.clientHandlers.ClientAuthorization;
+import cloudNettyServer.clientHandlers.ClientCodeSender;
+import cloudNettyServer.clientHandlers.ClientHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -20,7 +23,7 @@ public class NettyServer {
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
-                            socketChannel.pipeline().addLast(new ClientAuthorization(), new ClientHandler());
+                            socketChannel.pipeline().addLast(new ClientCodeSender(), new ClientAuthorization(), new ClientHandler());
                         }
                     })
                     .childOption(ChannelOption.SO_KEEPALIVE, true);

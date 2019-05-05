@@ -1,5 +1,6 @@
 package clientApp;
 
+import clientApp.protocol.ClientAuthService;
 import clientApp.protocol.DownloadFiles;
 import clientApp.protocol.SendFiles;
 import javafx.event.ActionEvent;
@@ -55,24 +56,29 @@ public class Controller {
     }
 
     public void tryToAuth(ActionEvent actionEvent) {
+        String login = "Ivan85";
+        String password = "pass1";
+
+        System.out.println("Action: tryToAuth");
         if (socket == null || socket.isClosed()) {
             connect();
         }
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        new ClientAuthService(out);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    new ClientAuthService(out, in, login, password);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            }).start();
+            }
+        }).start();
 
         setAuthorized(true);
     }
 
     public void sendFile(ActionEvent actionEvent) {
+        System.out.println("Action: sendFile");
         String fileName = "location.txt";
         new Thread(new Runnable() {
             @Override
@@ -86,7 +92,17 @@ public class Controller {
         }).start();
     }
 
+    public void deleteFileClient(ActionEvent actionEvent) {
+        System.out.println("Action: deleteFileClient");
+
+    }
+
+    public void resetClient(ActionEvent actionEvent) {
+        System.out.println("Action: resetClient");
+    }
+
     public void downloadFile(ActionEvent actionEvent) {
+        System.out.println("Action: downloadFile");
         String fileName = "fileInServer.txt";
         new Thread(new Runnable() {
             @Override
@@ -98,6 +114,14 @@ public class Controller {
                 }
             }
         }).start();
+    }
+
+    public void deleteFileServer(ActionEvent actionEvent) {
+        System.out.println("Action; deleteFileServer");
+    }
+
+    public void resetServer(ActionEvent actionEvent) {
+        System.out.println("Action: resetServer");
     }
 
     public void initializeFilesTable() {

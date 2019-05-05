@@ -53,11 +53,11 @@
         </HBox>
         <HBox fx:id="bottomHBox" alignment="BOTTOM_CENTER">
             <Button onAction="#sendFile" fx:id="sendFile" text="Send file" />
-            <Button fx:id="deleteFileClient" text="Delete file" />
-            <Button fx:id="resetClient" text="Reset" />
+            <Button onAction="#deleteFileClient" fx:id="deleteFileClient" text="Delete file" />
+            <Button onAction="#resetClient" fx:id="resetClient" text="Reset" />
             <Button onAction="#downloadFile" fx:id="downloadFile" text="Download file" />
-            <Button fx:id="deleteFileServer" text="Delete file" />
-            <Button fx:id="resetServer" text="Reset" />
+            <Button onAction="#deleteFileServer" fx:id="deleteFileServer" text="Delete file" />
+            <Button onAction="#resetServer" fx:id="resetServer" text="Reset" />
         </HBox>
     </VBox>
 </StackPane>

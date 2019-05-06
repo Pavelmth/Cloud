@@ -56,7 +56,7 @@ public class Controller {
     }
 
     public void tryToAuth(ActionEvent actionEvent) {
-        String login = "Ivan85";
+        String login = "Ivan84";
         String password = "pass1";
 
         System.out.println("Action: tryToAuth");

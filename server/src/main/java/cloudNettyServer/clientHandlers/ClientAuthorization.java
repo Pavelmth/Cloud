@@ -20,8 +20,8 @@ public class ClientAuthorization extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        ByteBuf buf = (ByteBuf) msg;
         if (actionStage.equals(ActionStage.UNAUTHORIZED)) {
+            ByteBuf buf = (ByteBuf) msg;
             //waiting for 'int'
             while (buf.readableBytes() < 4) {
                 return;
@@ -58,6 +58,7 @@ public class ClientAuthorization extends ChannelInboundHandlerAdapter {
                 System.out.println("Client folder: " + clientFolder);
                 if (clientFolder > 0) {
                     actionStage = ActionStage.AUTHORIZED;
+                    buf.release();
                 } else {
                     responseCod = 32;
                     ctx.writeAndFlush(responseCod);

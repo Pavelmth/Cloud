@@ -22,7 +22,7 @@ public class ClientAuthService {
             byte[] com = new byte[1];
             in.read(com, 0, 1);
 
-//            command = in.readByte();
+            command = in.readByte();
             System.out.println("Receiving code: " + com[0]);
         } finally {
 

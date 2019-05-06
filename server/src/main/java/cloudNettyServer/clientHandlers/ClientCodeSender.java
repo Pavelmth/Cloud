@@ -8,9 +8,8 @@ import io.netty.channel.ChannelPromise;
 public class ClientCodeSender extends ChannelOutboundHandlerAdapter {
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-        Byte aByte= (byte) msg;
-        ctx.writeAndFlush(aByte);
-        System.out.println("Client code sender " + aByte);
+        ctx.writeAndFlush(msg);
+        System.out.println("Client code sender " + (byte) msg);
         ctx.close();
     }
 }

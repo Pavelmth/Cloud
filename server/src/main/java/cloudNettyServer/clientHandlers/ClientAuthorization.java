@@ -4,11 +4,9 @@ import cloudNettyServer.enums.ActionStage;
 import cloudNettyServer.sql.AuthService;
 import cloudNettyServer.sql.CheckExistingLogin;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 
-import java.util.Arrays;
-
-@ChannelHandler.Sharable
 public class ClientAuthorization extends ChannelInboundHandlerAdapter {
     ActionStage actionStage = ActionStage.UNAUTHORIZED;
     int loginLength;
@@ -16,7 +14,6 @@ public class ClientAuthorization extends ChannelInboundHandlerAdapter {
     String login;
     int clientFolder;
     int loginId;
-    byte responseCod;
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -58,16 +55,24 @@ public class ClientAuthorization extends ChannelInboundHandlerAdapter {
                 System.out.println("Client folder: " + clientFolder);
                 if (clientFolder > 0) {
                     actionStage = ActionStage.AUTHORIZED;
+                    //if everything OK send cod '1'
+                    byte [] loginPasswordError = {1};
+                    ByteBuf respond = Unpooled.copiedBuffer(loginPasswordError);
+                    ctx.writeAndFlush(respond);
                     buf.release();
                 } else {
-                    responseCod = 32;
-                    ctx.writeAndFlush(responseCod);
-                    // add later response 'login and password don't match' ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                    //if login and password don't match send to client cod '32' and close connection
+                    byte [] loginPasswordError = {32};
+                    ByteBuf respond = Unpooled.copiedBuffer(loginPasswordError);
+                    ctx.writeAndFlush(respond);
+                    ctx.close();
                 }
             } else {
-                responseCod = 31;
-                ctx.writeAndFlush(responseCod);
-                //add later response 'login hasn't been found' ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                //if login doesn't exist send to client cod '31' and close connection
+                byte [] loginError = {31};
+                ByteBuf respond = Unpooled.copiedBuffer(loginError);
+                ctx.writeAndFlush(respond);
+                ctx.close();
             }
         }
 
@@ -78,6 +83,7 @@ public class ClientAuthorization extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        super.exceptionCaught(ctx, cause);
+        cause.printStackTrace();
+        ctx.close();
     }
 }

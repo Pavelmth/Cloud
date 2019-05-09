@@ -5,9 +5,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 public class ClientAuthService {
-    private Byte command;
+    Byte byteCod = -1;
 
-    public ClientAuthService(DataOutputStream out, DataInputStream in, String login, String password) throws IOException {
+    public byte clientAuthService(DataOutputStream out, DataInputStream in, String login, String password) throws IOException {
         try {
             out.writeInt(login.length());
             out.write(login.getBytes());
@@ -16,17 +16,10 @@ public class ClientAuthService {
             int passwordCode = password.hashCode();
             out.writeInt(passwordCode);
             System.out.println("Password HashCode has been sent");
-
-            //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-            command = in.readByte();
-            System.out.println("Receiving code: " + command);
+            byteCod = in.readByte();
         } finally {
 
         }
-    }
-
-    public byte getCommand() {
-        return command;
+        return byteCod;
     }
 }

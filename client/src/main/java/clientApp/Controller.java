@@ -45,36 +45,53 @@ public class Controller {
         }
     }
 
-    public void connect() {
-        try {
-            socket = new Socket(IP_ADRESS, PORT);
-            in = new DataInputStream(socket.getInputStream());
-            out = new DataOutputStream(socket.getOutputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public void tryToAuth(ActionEvent actionEvent) {
-        String login = "Ivan85";
+        String login = "Ivan84";
         String password = "pass1";
+        byte responseCod = -1;
 
         System.out.println("Action: tryToAuth");
         if (socket == null || socket.isClosed()) {
-            connect();
-        }
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    new ClientAuthService(out, in, login, password);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            try {
+                socket = new Socket(IP_ADRESS, PORT);
+                in = new DataInputStream(socket.getInputStream());
+                out = new DataOutputStream(socket.getOutputStream());
+                responseCod = new ClientAuthService().clientAuthService(out, in, login, password);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        }).start();
+        }
 
-        setAuthorized(true);
+        if (responseCod != -1 && responseCod != 31 && responseCod != 32) {
+            setAuthorized(true);
+        } else if (responseCod == 31) {
+            System.out.println("Пользователя с таким логином нет в базе");
+            try {
+                out.close();
+                in.close();
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else if (responseCod == 32) {
+            System.out.println("Логин и пароль не совпадают");
+            try {
+                out.close();
+                in.close();
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("Что-то пошло не так");
+            try {
+                out.close();
+                in.close();
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void sendFile(ActionEvent actionEvent) {

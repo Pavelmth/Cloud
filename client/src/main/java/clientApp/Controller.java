@@ -5,8 +5,10 @@ import clientApp.protocol.DownloadFiles;
 import clientApp.protocol.SendFiles;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -32,6 +34,12 @@ public class Controller {
     @FXML
     TableView<UserFile> clientFile;
 
+    @FXML
+    TextField loginField;
+
+    @FXML
+    PasswordField passwordField;
+
     private void setAuthorized(boolean isAuthorized) {
         if (isAuthorized) {
             authorizationPanel.setVisible(!isAuthorized);
@@ -46,8 +54,11 @@ public class Controller {
     }
 
     public void tryToAuth(ActionEvent actionEvent) {
-        String login = "Ivan84";
-        String password = "pass1";
+//        String login = "Ivan84";
+//        String password = "pass1";
+        String login = loginField.getText();
+        String password = passwordField.getText();
+
         byte responseCod = -1;
 
         System.out.println("Action: tryToAuth");
@@ -64,6 +75,7 @@ public class Controller {
 
         if (responseCod != -1 && responseCod != 31 && responseCod != 32) {
             setAuthorized(true);
+            System.out.println("Авторизация прошла успешно");
         } else if (responseCod == 31) {
             System.out.println("Пользователя с таким логином нет в базе");
             try {
@@ -96,12 +108,11 @@ public class Controller {
 
     public void sendFile(ActionEvent actionEvent) {
         System.out.println("Action: sendFile");
-        String fileName = "location.txt";
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    new SendFiles(out, CLIENT_FOLDER, fileName);
+                    new SendFiles(out, CLIENT_FOLDER, clientFile.getSelectionModel().getSelectedItem().getName());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -111,11 +122,16 @@ public class Controller {
 
     public void deleteFileClient(ActionEvent actionEvent) {
         System.out.println("Action: deleteFileClient");
-
+        //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        UserFile userFile =clientFile.getSelectionModel().getSelectedItem();
+        System.out.println(userFile.getName());
     }
 
     public void resetClient(ActionEvent actionEvent) {
         System.out.println("Action: resetClient");
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        clientFile.getItems().clear();
+        resetClientSideView();
     }
 
     public void downloadFile(ActionEvent actionEvent) {
@@ -150,9 +166,12 @@ public class Controller {
 
         clientFile.getColumns().addAll(tcName, tcSize);
 
-//        UserFiles userFiles = new UserFiles();
-//        userFiles.scanFiles();
+        resetClientSideView();
+    }
 
-        clientFile.getItems().addAll();
+    private void resetClientSideView() {
+        UserFiles userFiles = new UserFiles();
+        userFiles.scanFiles();
+        clientFile.getItems().addAll(userFiles.getUseFiles());
     }
 }

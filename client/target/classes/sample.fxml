@@ -3,7 +3,6 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
-<?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
@@ -16,8 +15,8 @@
 
     <!--Authorization panel. User shall input login and password.-->
     <HBox fx:id="authorizationPanel" alignment="CENTER" managed="true" visible="true" spacing="20">
-        <TextField fx:id="loginField" promptText="login"/>
-        <PasswordField fx:id="passwordField" onAction="#tryToAuth" promptText="password" />
+        <TextField fx:id="loginField" promptText="login" text="Ivan84"/>
+        <PasswordField fx:id="passwordField" onAction="#tryToAuth" promptText="password" text="pass1"/>
         <Button onAction="#tryToAuth" text="Log in" />
     </HBox>
 

@@ -12,6 +12,4 @@ public class ClientCodeSender extends ChannelOutboundHandlerAdapter {
         ctx.writeAndFlush(byteBuf);
         byteBuf.release();
     }
-
-
 }

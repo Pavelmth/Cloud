@@ -11,7 +11,7 @@ public class ClientAuthService {
         try {
             out.writeInt(login.length());
             out.write(login.getBytes());
-            System.out.println("login has been sent");
+            System.out.println("Login has been sent");
 
             int passwordCode = password.hashCode();
             out.writeInt(passwordCode);

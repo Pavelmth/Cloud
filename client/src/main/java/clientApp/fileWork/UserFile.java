@@ -1,4 +1,4 @@
-package clientApp;
+package clientApp.fileWork;
 
 //Class is used for representing each file in TableView
 

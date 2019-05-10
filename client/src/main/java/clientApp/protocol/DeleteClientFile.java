@@ -3,12 +3,10 @@ package clientApp.protocol;
 import java.io.File;
 
 public class DeleteClientFile {
-    private final File USER_FOLDER = new File("client/folder/");
-
     public DeleteClientFile(String fileName) {
-        File detetedFile = new File("client/folder/" + fileName);
-        if (detetedFile.exists() && detetedFile.isFile()) {
-            detetedFile.delete();
+        File deletedFile = new File("client/folder/" + fileName);
+        if (deletedFile.exists() && deletedFile.isFile()) {
+            deletedFile.delete();
         }
     }
 }

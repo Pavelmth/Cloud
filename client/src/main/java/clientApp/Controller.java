@@ -1,6 +1,9 @@
 package clientApp;
 
+import clientApp.fileWork.UserFile;
+import clientApp.fileWork.UserFiles;
 import clientApp.protocol.ClientAuthService;
+import clientApp.protocol.DeleteClientFile;
 import clientApp.protocol.DownloadFiles;
 import clientApp.protocol.SendFiles;
 import javafx.event.ActionEvent;
@@ -54,8 +57,6 @@ public class Controller {
     }
 
     public void tryToAuth(ActionEvent actionEvent) {
-//        String login = "Ivan84";
-//        String password = "pass1";
         String login = loginField.getText();
         String password = passwordField.getText();
 
@@ -122,15 +123,12 @@ public class Controller {
 
     public void deleteFileClient(ActionEvent actionEvent) {
         System.out.println("Action: deleteFileClient");
-        //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        UserFile userFile =clientFile.getSelectionModel().getSelectedItem();
-        System.out.println(userFile.getName());
+        new DeleteClientFile(clientFile.getSelectionModel().getSelectedItem().getName());
+        resetClientSideView();
     }
 
     public void resetClient(ActionEvent actionEvent) {
         System.out.println("Action: resetClient");
-        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        clientFile.getItems().clear();
         resetClientSideView();
     }
 
@@ -142,6 +140,9 @@ public class Controller {
             public void run() {
                 try {
                     new DownloadFiles(out, in, CLIENT_FOLDER, fileName);
+                    //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                    //add receiving list of server side files
+                    resetClientSideView();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -151,10 +152,14 @@ public class Controller {
 
     public void deleteFileServer(ActionEvent actionEvent) {
         System.out.println("Action; deleteFileServer");
+        //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //add receiving list of server side files
     }
 
     public void resetServer(ActionEvent actionEvent) {
         System.out.println("Action: resetServer");
+        //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //add receiving list of server side files
     }
 
     public void initializeFilesTable() {
@@ -170,8 +175,8 @@ public class Controller {
     }
 
     private void resetClientSideView() {
+        clientFile.getItems().clear();
         UserFiles userFiles = new UserFiles();
-        userFiles.scanFiles();
         clientFile.getItems().addAll(userFiles.getUseFiles());
     }
 }

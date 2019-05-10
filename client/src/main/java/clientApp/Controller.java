@@ -2,10 +2,7 @@ package clientApp;
 
 import clientApp.fileWork.UserFile;
 import clientApp.fileWork.UserFiles;
-import clientApp.protocol.ClientAuthService;
-import clientApp.protocol.DeleteClientFile;
-import clientApp.protocol.DownloadFiles;
-import clientApp.protocol.SendFiles;
+import clientApp.protocol.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
@@ -27,6 +24,7 @@ public class Controller {
     Socket socket;
     DataOutputStream out;
     DataInputStream in;
+    ObjectInputStream inObj;
 
     @FXML
     HBox authorizationPanel;
@@ -159,6 +157,14 @@ public class Controller {
     public void resetServer(ActionEvent actionEvent) {
         System.out.println("Action: resetServer");
         //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        try {
+            new ResetServer(inObj, out);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
         //add receiving list of server side files
     }
 

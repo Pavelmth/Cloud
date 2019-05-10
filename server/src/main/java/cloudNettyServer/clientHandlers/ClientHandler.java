@@ -2,6 +2,8 @@ package cloudNettyServer.clientHandlers;
 
 import cloudNettyServer.enums.CommandType;
 import cloudNettyServer.enums.ActionStage;
+import cloudNettyServer.fileWork.ListOfFiles;
+import cloudNettyServer.fileWork.UserFiles;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.ChannelHandlerContext;
@@ -173,6 +175,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                 System.out.println("Command 'RESET' has been got");
                 if (actionStage.equals(ActionStage.SENDING_FILE_NAME_LIST)) {
                     //add later +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                    ctx.writeAndFlush(new ListOfFiles(new UserFiles("1").getUseFiles()));
                 }
         }
     }

@@ -2,6 +2,7 @@ package cloudNettyServer.clientHandlers;
 
 import cloudNettyServer.enums.CommandType;
 import cloudNettyServer.enums.ActionStage;
+import cloudNettyServer.fileWork.DeleteFile;
 import cloudNettyServer.fileWork.UserFile;
 import cloudNettyServer.fileWork.UserFiles;
 import io.netty.buffer.ByteBuf;
@@ -19,7 +20,7 @@ import java.util.ArrayList;
 
 public class ClientHandler extends ChannelInboundHandlerAdapter {
     private CommandType commandType = CommandType.EMPTY;
-    private ActionStage actionStage = ActionStage.GETTING_COMMAND;
+    private ActionStage actionStage = ActionStage.GETTING_CLIENT_FOLDER;
 
     private long fileLength;
     private int nameLength;
@@ -38,10 +39,19 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ByteBuf buf = ((ByteBuf) msg);
+        if (actionStage.equals(ActionStage.GETTING_CLIENT_FOLDER)) {
+            if (buf.readableBytes() < 4) {
+                return;
+            }
+            clientFolder = buf.readInt();
+            actionStage = ActionStage.GETTING_COMMAND;
+        }
 
         if (actionStage.equals(ActionStage.GETTING_COMMAND)) {
             byte firstByte = 0;
-            if (buf.isReadable()) firstByte = buf.readByte();
+            if (buf.isReadable()) {
+                firstByte = buf.readByte();
+            }
             commandType = CommandType.getDataTypeFromByte(firstByte);
 
             switch (commandType) {
@@ -170,18 +180,28 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                     System.out.println(fileName);
                 }
                 if (actionStage.equals(ActionStage.DELETE_FILES)) {
-                    // add later +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-                    actionStage = ActionStage.SENDING_FILE_NAME_LIST;
+
+                    System.out.println("action: DELETE_FILES");
+                    boolean isDeleted = new DeleteFile().deleteFile(String.valueOf(clientFolder), fileName);
+                    // add later return command "RESET" - '3' +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                    if (isDeleted) {
+                        byte [] loginError = {3};
+                        System.out.println("action has been done, return cod '3'");
+                        ByteBuf respond = Unpooled.copiedBuffer(loginError);
+                        ctx.writeAndFlush(respond);
+                    }
+
+                    actionStage = ActionStage.GETTING_COMMAND;
                 }
                 /* send to a client a list of file names from his server folder*/
             case RESET:
                 System.out.println("Command 'RESET' has been got");
                 if (actionStage.equals(ActionStage.SENDING_FILE_NAME_LIST)) {
                     //add later +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-                    ArrayList<UserFile> fileList = new UserFiles("1").getUseFiles();
+                    ArrayList<UserFile> fileList = new UserFiles(String.valueOf(clientFolder)).getUseFiles();
                     StringBuilder stringBuilder = new StringBuilder();
-                    for (UserFile o:
-                         fileList) {
+                    for (UserFile o :
+                            fileList) {
                         stringBuilder.append(" " + o.getName() + " " + o.getSize());
                     }
                     stringBuilder.delete(0, 1);
@@ -194,7 +214,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 
                     ctx.writeAndFlush(bufList);
 
-
+                    actionStage = ActionStage.GETTING_COMMAND;
                 }
         }
     }

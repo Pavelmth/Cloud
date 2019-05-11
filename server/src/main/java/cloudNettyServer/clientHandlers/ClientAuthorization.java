@@ -80,8 +80,9 @@ public class ClientAuthorization extends ChannelInboundHandlerAdapter {
             /*
              add client folder +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             */
-//            ByteBuf bufFolder = 0;
-//            ctx.fireChannelRead(clientFolder);
+            ByteBuf bufFolder = Unpooled.copyInt(clientFolder);
+            ctx.fireChannelRead(bufFolder);
+            /**/
 
             ctx.fireChannelRead(msg);
         }

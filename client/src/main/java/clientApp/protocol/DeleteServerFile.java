@@ -12,8 +12,8 @@ public class DeleteServerFile {
     public byte deleteServerFile(DataOutputStream out, DataInputStream in, String fileName) throws IOException {
         long start = System.currentTimeMillis();
 
-        //sending command "reset" - '17'
-        out.writeByte(18);
+        //sending command "delete file" - '17'
+        out.writeByte(17);
         out.flush();
         System.out.println("The command '17' has been sent");
 

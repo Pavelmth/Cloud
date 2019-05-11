@@ -6,7 +6,10 @@ public class DeleteClientFile {
     public DeleteClientFile(String fileName) {
         File deletedFile = new File("client/folder/" + fileName);
         if (deletedFile.exists() && deletedFile.isFile()) {
-            deletedFile.delete();
+            boolean isDel = deletedFile.delete();
+            if (isDel) {
+                System.out.println("File: " + fileName + " has been deleted");
+            }
         }
     }
 }

@@ -35,7 +35,19 @@ public class Controller {
     TableView<UserFile> clientFile;
 
     @FXML
+    TableColumn<UserFile, String> clientFileName;
+
+    @FXML
+    TableColumn<UserFile, Long> clientFileSize;
+
+    @FXML
     TableView<UserFile> serverFile;
+
+    @FXML
+    TableColumn<UserFile, String> serverFileName;
+
+    @FXML
+    TableColumn<UserFile, Long> serverFileSize;
 
     @FXML
     TextField loginField;
@@ -49,7 +61,6 @@ public class Controller {
             workingPanel.setVisible(isAuthorized);
 
             initializeFilesTable();
-
         } else {
             authorizationPanel.setVisible(isAuthorized);
             workingPanel.setVisible(!isAuthorized);
@@ -134,7 +145,7 @@ public class Controller {
 
     public void downloadFile(ActionEvent actionEvent) {
         System.out.println("Action: downloadFile");
-        String fileName = "fileInServer.txt";
+        String fileName = serverFile.getSelectionModel().getSelectedItem().getName();
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -152,38 +163,54 @@ public class Controller {
 
     public void deleteFileServer(ActionEvent actionEvent) {
         System.out.println("Action; deleteFileServer");
-        //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        //add receiving list of server side files
+        String fileName = serverFile.getSelectionModel().getSelectedItem().getName();
+        byte byteCode = 0;
+        try {
+            byteCode = new DeleteServerFile().deleteServerFile(out, in, fileName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (byteCode == 3) {
+            resetServerSideView();
+        }
     }
 
     public void resetServer(ActionEvent actionEvent) {
         System.out.println("Action: resetServer");
-        //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        //add receiving list of server side files
         resetServerSideView();
     }
 
     public void initializeFilesTable() {
+        clientFileName.setCellValueFactory(new PropertyValueFactory<UserFile, String>("name"));
+        clientFileSize.setCellValueFactory(new PropertyValueFactory<UserFile, Long>("size"));
 
-
+        serverFileName.setCellValueFactory(new PropertyValueFactory<UserFile, String>("name"));
+        serverFileSize.setCellValueFactory(new PropertyValueFactory<UserFile, Long>("size"));
 
                 //------------
-        TableColumn<UserFile, String> tcName = new TableColumn<>("Name");
-        tcName.setCellValueFactory(new PropertyValueFactory<>("name"));
-
-        TableColumn<UserFile, String> tcSize = new TableColumn<>("Size");
-        tcSize.setCellValueFactory(new PropertyValueFactory<>("size"));
+//        TableColumn<UserFile, String> tcName = new TableColumn<>("Name");
+//        tcName.setCellValueFactory(new PropertyValueFactory<>("name"));
+//
+//        TableColumn<UserFile, String> tcSize = new TableColumn<>("Size");
+//        tcSize.setCellValueFactory(new PropertyValueFactory<>("size"));
 
 //        clientFile.getColumns().addAll(tcName, tcSize);
 //        serverFile.getColumns().addAll(tcName, tcSize);
 
         resetClientSideView();
+        resetServerSideView();
     }
 
     private void resetClientSideView() {
         clientFile.getItems().clear();
         UserFiles userFiles = new UserFiles();
         clientFile.getItems().addAll(userFiles.getUseFiles());
+
+/*
+        clientFile.getItems().clear();
+        UserFiles userFiles = new UserFiles();
+        clientFile.getItems().addAll(userFiles.getUseFiles());
+        */
     }
 
     private void resetServerSideView() {
@@ -194,6 +221,5 @@ public class Controller {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 }

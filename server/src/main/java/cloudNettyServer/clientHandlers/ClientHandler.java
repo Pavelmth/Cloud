@@ -23,7 +23,8 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 
     private long fileLength;
     private int nameLength;
-    String fileName = null;
+    private String fileName = null;
+    private int clientFolder;
 
 
     private ByteBuf accumulator;

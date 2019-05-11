@@ -11,6 +11,7 @@
 <?import javafx.scene.layout.VBox?>
 
 <?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.control.TableColumn?>
 <StackPane stylesheets="Styles.css" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.172-ea" fx:controller="clientApp.Controller">
 
     <!--Authorization panel. User shall input login and password.-->
@@ -32,22 +33,16 @@
         </HBox>
         <HBox fx:id="mainHBox" VBox.vgrow="ALWAYS">
             <TableView fx:id="clientFile" editable="true" HBox.hgrow="ALWAYS">
-                <!--<columns>-->
-                    <!--<TableColumn fx:id="clientFileName" prefWidth="300" text="File Name">-->
-                        <!--<cellValueFactory><PropertyValueFactory property="fileName" />-->
-                        <!--</cellValueFactory>-->
-                    <!--</TableColumn>-->
-                    <!--<TableColumn fx:id="clientFileSize" prefWidth="100" text="File Size">-->
-                        <!--<cellValueFactory><PropertyValueFactory property="size" />-->
-                        <!--</cellValueFactory>-->
-                    <!--</TableColumn>-->
-                <!--</columns>-->
+                <columns>
+                    <TableColumn fx:id="clientFileName" prefWidth="250" text="File Name"/>
+                    <TableColumn fx:id="clientFileSize" prefWidth="100" text="File Size"/>
+                </columns>
             </TableView>
             <TableView fx:id="serverFile" editable="true" HBox.hgrow="ALWAYS">
-                <!--<columns>-->
-                    <!--<TableColumn fx:id="serverFileName" prefWidth="300" text="File Name" />-->
-                    <!--<TableColumn fx:id="serverFil eSize" prefWidth="100" text="File Size" />-->
-                <!--</columns>-->
+                <columns>
+                    <TableColumn fx:id="serverFileName" prefWidth="250" text="File Name" />
+                    <TableColumn fx:id="serverFileSize" prefWidth="100" text="File Size" />
+                </columns>
             </TableView>
         </HBox>
         <HBox fx:id="bottomHBox" alignment="BOTTOM_CENTER">

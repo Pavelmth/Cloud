@@ -2,8 +2,11 @@ package cloudNettyServer.clientHandlers;
 
 import cloudNettyServer.enums.CommandType;
 import cloudNettyServer.enums.ActionStage;
+import cloudNettyServer.fileWork.UserFile;
+import cloudNettyServer.fileWork.UserFiles;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.DefaultFileRegion;
@@ -12,6 +15,7 @@ import io.netty.channel.FileRegion;
 import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
 
 public class ClientHandler extends ChannelInboundHandlerAdapter {
     private CommandType commandType = CommandType.EMPTY;
@@ -57,7 +61,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
             }
         }
         switch (commandType) {
-            /*get a file from a client and upload the file to the server */
+            /* get a file from a client and upload the file to the server */
             case SEND_FILES:
                 System.out.println("Command 'SEND FILES' has been got");
                 //get a file length
@@ -109,7 +113,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                     actionStage = ActionStage.GETTING_COMMAND;
                 }
                 break;
-            /*download file from the server and send to a client*/
+            /* download file from the server and send to a client */
             case DOWNLOAD_FILES:
                 System.out.println("Command 'DOWNLOAD FILES' has been got");
                 //get a file name length
@@ -139,7 +143,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                     actionStage = ActionStage.GETTING_COMMAND;
                 }
                 break;
-            /*delete the file on the server and send the new list of file names to a client*/
+            /* delete the file on the server and send the new list of file names to a client */
             case DELETE_FILES:
                 System.out.println("Command 'DELETE FILES' has been got");
                 //get a file name length
@@ -168,11 +172,28 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                     // add later +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                     actionStage = ActionStage.SENDING_FILE_NAME_LIST;
                 }
-                /*send to a client a list of file names from his server folder*/
+                /* send to a client a list of file names from his server folder*/
             case RESET:
                 System.out.println("Command 'RESET' has been got");
                 if (actionStage.equals(ActionStage.SENDING_FILE_NAME_LIST)) {
                     //add later +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                    ArrayList<UserFile> fileList = new UserFiles("1").getUseFiles();
+                    StringBuilder stringBuilder = new StringBuilder();
+                    for (UserFile o:
+                         fileList) {
+                        stringBuilder.append(" " + o.getName() + " " + o.getSize());
+                    }
+                    stringBuilder.delete(0, 1);
+                    byte[] arr = stringBuilder.toString().getBytes();
+                    ByteBuf bufList = Unpooled.copiedBuffer(arr);
+
+                    int lengthList = arr.length;
+                    ByteBuf buf1 = Unpooled.copyInt(lengthList);
+                    ctx.writeAndFlush(buf1);
+
+                    ctx.writeAndFlush(bufList);
+
+
                 }
         }
     }

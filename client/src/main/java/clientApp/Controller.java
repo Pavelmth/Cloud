@@ -2,10 +2,7 @@ package clientApp;
 
 import clientApp.fileWork.UserFile;
 import clientApp.fileWork.UserFiles;
-import clientApp.protocol.ClientAuthService;
-import clientApp.protocol.DeleteClientFile;
-import clientApp.protocol.DownloadFiles;
-import clientApp.protocol.SendFiles;
+import clientApp.protocol.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
@@ -36,6 +33,9 @@ public class Controller {
 
     @FXML
     TableView<UserFile> clientFile;
+
+    @FXML
+    TableView<UserFile> serverFile;
 
     @FXML
     TextField loginField;
@@ -160,16 +160,22 @@ public class Controller {
         System.out.println("Action: resetServer");
         //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         //add receiving list of server side files
+        resetServerSideView();
     }
 
     public void initializeFilesTable() {
+
+
+
+                //------------
         TableColumn<UserFile, String> tcName = new TableColumn<>("Name");
         tcName.setCellValueFactory(new PropertyValueFactory<>("name"));
 
         TableColumn<UserFile, String> tcSize = new TableColumn<>("Size");
         tcSize.setCellValueFactory(new PropertyValueFactory<>("size"));
 
-        clientFile.getColumns().addAll(tcName, tcSize);
+//        clientFile.getColumns().addAll(tcName, tcSize);
+//        serverFile.getColumns().addAll(tcName, tcSize);
 
         resetClientSideView();
     }
@@ -178,5 +184,16 @@ public class Controller {
         clientFile.getItems().clear();
         UserFiles userFiles = new UserFiles();
         clientFile.getItems().addAll(userFiles.getUseFiles());
+    }
+
+    private void resetServerSideView() {
+        serverFile.getItems().clear();
+        try {
+            ResetServer resetServer = new ResetServer(out, in);
+            serverFile.getItems().addAll(resetServer.getUserFiles());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }

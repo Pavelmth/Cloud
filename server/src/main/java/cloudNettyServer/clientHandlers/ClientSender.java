@@ -14,7 +14,8 @@ public class ClientSender extends ChannelOutboundHandlerAdapter {
         if (actionStage.equals(ActionStage.UNAUTHORIZED)) {
             ByteBuf byteBuf = (ByteBuf) msg;
             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-            if (1 == 1) {
+            // later add code from ClientAuthorization
+            if (true) {
                 actionStage = ActionStage.AUTHORIZED;
             }
             ctx.writeAndFlush(byteBuf);

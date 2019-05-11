@@ -77,12 +77,8 @@ public class ClientAuthorization extends ChannelInboundHandlerAdapter {
         }
 
         if (actionStage.equals(ActionStage.AUTHORIZED)) {
-            /*
-             add client folder +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-            */
             ByteBuf bufFolder = Unpooled.copyInt(clientFolder);
             ctx.fireChannelRead(bufFolder);
-            /**/
 
             ctx.fireChannelRead(msg);
         }

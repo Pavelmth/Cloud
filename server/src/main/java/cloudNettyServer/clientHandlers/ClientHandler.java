@@ -75,9 +75,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
             /* get a file from a client and upload the file to the server */
             case SEND_FILES:
                 System.out.println("Command 'SEND FILES' has been got");
-                //get a file length
                 if (actionStage.equals(ActionStage.GETTING_FILE_LENGTH)) {
-                    //waiting for 'long'
                     if (buf.readableBytes() < 8) {
                         return;
                     }
@@ -85,7 +83,6 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                     actionStage = ActionStage.GETTING_FILE_NAME_LENGTH;
                     System.out.println("file size is " + fileLength);
                 }
-                //get a file name length
                 if (actionStage.equals(ActionStage.GETTING_FILE_NAME_LENGTH)) {
                     //waiting for 'int'
                     if (buf.readableBytes() < 4) {
@@ -95,7 +92,6 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                     actionStage = ActionStage.GETTING_FILE_NAME;
                     System.out.println("file name length is " + nameLength);
                 }
-                //get a file name
                 if (actionStage.equals(ActionStage.GETTING_FILE_NAME)) {
                     //waiting for all the letters of the file name
                     if (buf.readableBytes() < nameLength) {
@@ -107,7 +103,6 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                     actionStage = ActionStage.GETTING_FILE_CONTENT;
                     System.out.println("File name: " + fileName);
                 }
-                //get a file context and send it farther
                 if (actionStage.equals(ActionStage.GETTING_FILE_CONTENT)) {
 
                     accumulator.writeBytes(buf);
@@ -124,12 +119,10 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                     actionStage = ActionStage.GETTING_COMMAND;
                 }
                 break;
-            /* download file from the server and send to a client */
+            /* download file from the server*/
             case DOWNLOAD_FILES:
                 System.out.println("Command 'DOWNLOAD FILES' has been got");
-                //get a file name length
                 if (actionStage.equals(ActionStage.GETTING_FILE_NAME_LENGTH)) {
-                    //waiting for int
                     if (buf.readableBytes() < 4) {
                         return;
                     }
@@ -137,9 +130,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                     actionStage = ActionStage.GETTING_FILE_NAME;
                     System.out.println("file name length is " + nameLength);
                 }
-                //get a file name
                 if (actionStage.equals(ActionStage.GETTING_FILE_NAME)) {
-                    //waiting for all the letters of the name
                     if (buf.readableBytes() < nameLength) {
                         return;
                     }
@@ -154,22 +145,17 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                     actionStage = ActionStage.GETTING_COMMAND;
                 }
                 break;
-            /* delete the file on the server and send the new list of file names to a client */
+            /* delete the file on the server*/
             case DELETE_FILES:
                 System.out.println("Command 'DELETE FILES' has been got");
-                //get a file name length
                 if (actionStage.equals(ActionStage.GETTING_FILE_NAME_LENGTH)) {
-                    //waiting for int
                     if (buf.readableBytes() < 4) {
                         return;
                     }
                     nameLength = buf.readInt();
                     actionStage = ActionStage.GETTING_FILE_NAME;
-                    System.out.println("file name length is " + nameLength);
                 }
-                //get a file name
                 if (actionStage.equals(ActionStage.GETTING_FILE_NAME)) {
-                    //waiting for all the letters of the name
                     if (buf.readableBytes() < nameLength) {
                         return;
                     }
@@ -180,24 +166,17 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                     System.out.println(fileName);
                 }
                 if (actionStage.equals(ActionStage.DELETE_FILES)) {
-
-                    System.out.println("action: DELETE_FILES");
                     boolean isDeleted = new DeleteFile().deleteFile(String.valueOf(clientFolder), fileName);
-                    // add later return command "RESET" - '3' +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                     if (isDeleted) {
-                        byte [] loginError = {3};
-                        System.out.println("action has been done, return cod '3'");
+                        byte[] loginError = {3};
                         ByteBuf respond = Unpooled.copiedBuffer(loginError);
                         ctx.writeAndFlush(respond);
                     }
-
                     actionStage = ActionStage.GETTING_COMMAND;
                 }
-                /* send to a client a list of file names from his server folder*/
             case RESET:
                 System.out.println("Command 'RESET' has been got");
                 if (actionStage.equals(ActionStage.SENDING_FILE_NAME_LIST)) {
-                    //add later +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                     ArrayList<UserFile> fileList = new UserFiles(String.valueOf(clientFolder)).getUseFiles();
                     StringBuilder stringBuilder = new StringBuilder();
                     for (UserFile o :

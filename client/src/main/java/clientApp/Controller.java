@@ -120,11 +120,16 @@ public class Controller {
 
     public void sendFile(ActionEvent actionEvent) {
         System.out.println("Action: sendFile");
+
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    new SendFiles(out, CLIENT_FOLDER, clientFile.getSelectionModel().getSelectedItem().getName());
+                    byte byteCode;
+                    byteCode = new SendFiles().sendFiles(out, in, CLIENT_FOLDER, clientFile.getSelectionModel().getSelectedItem().getName());
+                    if (byteCode == 3) {
+                        resetServerSideView();
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -151,8 +156,9 @@ public class Controller {
             public void run() {
                 try {
                     new DownloadFiles(out, in, CLIENT_FOLDER, fileName);
-                    //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-                    //add receiving list of server side files
+                    /** refresh file list +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                    */
+
                     resetClientSideView();
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -163,10 +169,9 @@ public class Controller {
 
     public void deleteFileServer(ActionEvent actionEvent) {
         System.out.println("Action; deleteFileServer");
-        String fileName = serverFile.getSelectionModel().getSelectedItem().getName();
         byte byteCode = 0;
         try {
-            byteCode = new DeleteServerFile().deleteServerFile(out, in, fileName);
+            byteCode = new DeleteServerFile().deleteServerFile(out, in, serverFile.getSelectionModel().getSelectedItem().getName());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -187,16 +192,6 @@ public class Controller {
         serverFileName.setCellValueFactory(new PropertyValueFactory<UserFile, String>("name"));
         serverFileSize.setCellValueFactory(new PropertyValueFactory<UserFile, Long>("size"));
 
-                //------------
-//        TableColumn<UserFile, String> tcName = new TableColumn<>("Name");
-//        tcName.setCellValueFactory(new PropertyValueFactory<>("name"));
-//
-//        TableColumn<UserFile, String> tcSize = new TableColumn<>("Size");
-//        tcSize.setCellValueFactory(new PropertyValueFactory<>("size"));
-
-//        clientFile.getColumns().addAll(tcName, tcSize);
-//        serverFile.getColumns().addAll(tcName, tcSize);
-
         resetClientSideView();
         resetServerSideView();
     }
@@ -205,12 +200,6 @@ public class Controller {
         clientFile.getItems().clear();
         UserFiles userFiles = new UserFiles();
         clientFile.getItems().addAll(userFiles.getUseFiles());
-
-/*
-        clientFile.getItems().clear();
-        UserFiles userFiles = new UserFiles();
-        clientFile.getItems().addAll(userFiles.getUseFiles());
-        */
     }
 
     private void resetServerSideView() {

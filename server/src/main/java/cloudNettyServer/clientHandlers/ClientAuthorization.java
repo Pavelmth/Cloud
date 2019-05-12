@@ -19,30 +19,22 @@ public class ClientAuthorization extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (actionStage.equals(ActionStage.UNAUTHORIZED)) {
             ByteBuf buf = (ByteBuf) msg;
-            //waiting for 'int'
             while (buf.readableBytes() < 4) {
                 return;
             }
-            //getting a login length
             loginLength = buf.readInt();
-            System.out.println("file name length: " + loginLength);
 
-            //waiting for all the letters of the login
             while (buf.readableBytes() < loginLength) {
                 return;
             }
-            //getting a login and check
             byte[] array = new byte[loginLength];
             buf.readBytes(array, 0, loginLength);
             login = new String(array);
-            System.out.println("Login: " + login);
 
             //check existing of login
             loginId = new CheckExistingLogin().getLogin(login);
-            System.out.println("Login ID: " + loginId);
 
             if (loginId > 0) {
-                //waiting for 'int'
                 while (buf.readableBytes() < 4) {
                     return;
                 }

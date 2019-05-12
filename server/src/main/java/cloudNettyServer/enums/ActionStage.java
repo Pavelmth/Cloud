@@ -1,9 +1,11 @@
 package cloudNettyServer.enums;
 
 public enum ActionStage {
+    //use in ClientAuthorization
     AUTHORIZED,
     UNAUTHORIZED,
 
+    //use in ClientHandler
     GETTING_CLIENT_FOLDER,
     GETTING_COMMAND,
     GETTING_FILE_LENGTH,

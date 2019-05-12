@@ -156,8 +156,6 @@ public class Controller {
             public void run() {
                 try {
                     new DownloadFiles(out, in, CLIENT_FOLDER, fileName);
-                    /** refresh file list +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-                    */
 
                     resetClientSideView();
                 } catch (IOException e) {

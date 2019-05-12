@@ -18,6 +18,7 @@ public class ClientAuthorization extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (actionStage.equals(ActionStage.UNAUTHORIZED)) {
+            System.out.println("ClientAuthorization " + actionStage);
             ByteBuf buf = (ByteBuf) msg;
             while (buf.readableBytes() < 4) {
                 return;
@@ -40,12 +41,12 @@ public class ClientAuthorization extends ChannelInboundHandlerAdapter {
                 }
                 //getting password hashcode
                 passwordCode = buf.readInt();
-                System.out.println("HashCode of password: " + passwordCode);
 
                 //check authorization
                 clientFolder = new AuthService().getAccess(login, passwordCode);
-                System.out.println("Client folder: " + clientFolder);
                 if (clientFolder > 0) {
+                    ByteBuf bufFolder = Unpooled.copyInt(clientFolder);
+                    ctx.fireChannelRead(bufFolder);
                     actionStage = ActionStage.AUTHORIZED;
                     //if everything OK send cod '1'
                     byte [] loginPasswordError = {1};
@@ -69,9 +70,7 @@ public class ClientAuthorization extends ChannelInboundHandlerAdapter {
         }
 
         if (actionStage.equals(ActionStage.AUTHORIZED)) {
-            ByteBuf bufFolder = Unpooled.copyInt(clientFolder);
-            ctx.fireChannelRead(bufFolder);
-
+            System.out.println("ClientAuthorization " + actionStage);
             ctx.fireChannelRead(msg);
         }
     }

@@ -17,7 +17,7 @@ public class DownloadFiles {
             buffOut.write(16);
             buffOut.flush();
             //send file name length
-            buffOut.writeInt(fileName.length());
+            buffOut.writeByte(fileName.length());
             System.out.println(fileName + " " + fileName.length());
             buffOut.flush();
             //sending name of file

@@ -21,7 +21,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
     private ActionStage actionStage = ActionStage.GETTING_CLIENT_FOLDER;
 
     private long fileLength;
-    private int nameLength;
+    private byte nameLength;
     private String fileName = null;
     private int clientFolder;
 
@@ -87,11 +87,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                 }
                 if (actionStage.equals(ActionStage.GETTING_FILE_NAME_LENGTH)) {
                     System.out.println("ClientHandler " + actionStage);
-                    //waiting for 'int'
-                    if (input.readableBytes() < 4) {
-                        return;
-                    }
-                    nameLength = input.readInt();
+                    nameLength = input.readByte();
                     actionStage = ActionStage.GETTING_FILE_NAME;
                     System.out.println("file name length is " + nameLength);
                 }
@@ -144,10 +140,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                 System.out.println("Command 'DOWNLOAD FILES' has been got");
                 if (actionStage.equals(ActionStage.GETTING_FILE_NAME_LENGTH)) {
                     System.out.println("ClientHandler " + actionStage);
-                    if (input.readableBytes() < 4) {
-                        return;
-                    }
-                    nameLength = input.readInt();
+                    nameLength = input.readByte();
                     actionStage = ActionStage.GETTING_FILE_NAME;
                     System.out.println("file name length is " + nameLength);
                 }
@@ -189,10 +182,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                 System.out.println("Command 'DELETE FILES' has been got");
                 if (actionStage.equals(ActionStage.GETTING_FILE_NAME_LENGTH)) {
                     System.out.println("ClientHandler " + actionStage);
-                    if (input.readableBytes() < 4) {
-                        return;
-                    }
-                    nameLength = input.readInt();
+                    nameLength = input.readByte();
                     actionStage = ActionStage.GETTING_FILE_NAME;
                 }
                 if (actionStage.equals(ActionStage.GETTING_FILE_NAME)) {

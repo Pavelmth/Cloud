@@ -5,9 +5,7 @@ import cloudNettyServer.enums.ActionStage;
 import cloudNettyServer.fileWork.DeleteFile;
 import cloudNettyServer.fileWork.UserFile;
 import cloudNettyServer.fileWork.UserFiles;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
-import io.netty.buffer.Unpooled;
+import io.netty.buffer.*;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.DefaultFileRegion;
@@ -27,7 +25,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
     File file;
 
     private long counter;
-
+    private long remain;
 
     private ByteBuf accumulator;
 
@@ -162,6 +160,13 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 
                     file = new File("server/folder/" + clientFolder + "/" + fileName);
 
+                    if (fileLength <= 8192) {
+                        counter = fileLength / 8192;
+                        remain = fileLength % 8192;
+                    } else {
+                        counter = 1;
+                    }
+
                     actionStage = ActionStage.SENDING_FILE_CONTENT;
                     System.out.println(fileName);
                 }
@@ -169,13 +174,41 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                     System.out.println("ClientHandler " + actionStage);
 
                     try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(file))) {
-                        int bufLen;
-                        byte[] arr = new byte[8192];
-                        while ((bufLen = in.read(arr)) > 0) {
-                            accumulator.writeBytes(arr, 0, bufLen);
-                            ctx.writeAndFlush(accumulator);
-                            accumulator.clear();
+                        ByteBuf tempBuf;
+                        ByteBuf finTempBuf;
+
+                        if (counter == 1) {
+                            byte[] arr = new byte[(int) fileLength];
+                            in.read(arr);
+                            tempBuf = Unpooled.copiedBuffer(arr);
+                            ctx.writeAndFlush(tempBuf);
+
+                            byte[] backCommand = {3};
+                            ByteBuf respond = Unpooled.copiedBuffer(backCommand);
+                            ctx.writeAndFlush(respond);
+                        } else {
+                            byte[] arr = new byte[8192];
+                            while (in.read(arr) > 0 && counter != 0) {
+                                tempBuf = Unpooled.copiedBuffer(arr);
+                                ctx.writeAndFlush(tempBuf);
+                                counter--;
+                            }
+                            byte[] finArr = new byte[(int) remain];
+
+                            in.read(finArr);
+                            finTempBuf = Unpooled.copiedBuffer(finArr);
+                            ctx.writeAndFlush(finTempBuf);
+
+                            byte[] backCommand = {3};
+                            ByteBuf respond = Unpooled.copiedBuffer(backCommand);
+                            ctx.writeAndFlush(respond);
                         }
+
+//                        byte[] arr = new byte[8192];
+//                        while (in.read(arr) > 0) {
+//                            tempBuf = Unpooled.copiedBuffer(arr);
+//                            ctx.writeAndFlush(tempBuf);
+//                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

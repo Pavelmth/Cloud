@@ -155,9 +155,11 @@ public class Controller {
             @Override
             public void run() {
                 try {
-                    new DownloadFiles(out, in, CLIENT_FOLDER, fileName);
-
-                    resetClientSideView();
+                    byte byteCode;
+                    byteCode = new DownloadFiles().downloadFiles(out, in, CLIENT_FOLDER, fileName);
+                    if (byteCode == 3) {
+                        resetServerSideView();
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

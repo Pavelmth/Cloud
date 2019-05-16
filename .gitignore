@@ -4,4 +4,7 @@
 *.0.0.jar
 *.properties
 *.iml
-
+/client/folder/
+/server/folder/1/
+/server/folder/2/
+/server/folder/3/

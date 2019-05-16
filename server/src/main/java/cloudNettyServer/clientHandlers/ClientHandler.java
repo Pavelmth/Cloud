@@ -24,6 +24,8 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
     private byte nameLength;
     private String fileName = null;
     private int clientFolder;
+    File file;
+
     private long counter;
 
 
@@ -106,20 +108,25 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                     byte[] array = new byte[nameLength];
                     input.readBytes(array, 0, nameLength);
                     fileName = new String(array);
+
+                    file = new File("server/folder/" + clientFolder + "/" + fileName);
+
                     actionStage = ActionStage.GETTING_FILE_CONTENT;
                     System.out.println("File name: " + fileName);
                 }
                 if (actionStage.equals(ActionStage.GETTING_FILE_CONTENT)) {
                     System.out.println("ClientHandler " + actionStage);
-
-                    accumulator.writeBytes(input, 0, (int) fileLength);
-
-                    File file = new File("server/folder/" + clientFolder + "/" + fileName);
+                    if (!input.isReadable()) {
+                        return;
+                    }
+                    accumulator.writeBytes(input);
 
                     try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file, true))) {
                         while (counter != 0) {
-                            out.write(accumulator.readByte());
-                            counter--;
+                            if (accumulator.isReadable()) {
+                                out.write(accumulator.readByte());
+                                counter--;
+                            }
                             System.out.println("counter: " + counter);
                         }
                     } catch (Exception e) {
@@ -152,17 +159,16 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                     byte[] array = new byte[nameLength];
                     input.readBytes(array, 0, nameLength);
                     fileName = new String(array);
+
+                    file = new File("server/folder/" + clientFolder + "/" + fileName);
+
                     actionStage = ActionStage.SENDING_FILE_CONTENT;
                     System.out.println(fileName);
                 }
                 if (actionStage.equals(ActionStage.SENDING_FILE_CONTENT)) {
                     System.out.println("ClientHandler " + actionStage);
 
-                    File file = new File("server/folder/" + clientFolder + "/" + fileName);
-
-                    try (
-                            BufferedInputStream in = new BufferedInputStream(new FileInputStream(file))
-                    ) {
+                    try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(file))) {
                         int bufLen;
                         byte[] arr = new byte[8192];
                         while ((bufLen = in.read(arr)) > 0) {

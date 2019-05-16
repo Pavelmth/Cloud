@@ -24,6 +24,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
     private byte nameLength;
     private String fileName = null;
     private int clientFolder;
+    private long counter;
 
 
     private ByteBuf accumulator;
@@ -31,7 +32,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         ByteBufAllocator allocator = ctx.alloc();
-        accumulator = allocator.directBuffer(1024 * 1024 * 1, 10 * 1024 * 1024);
+        accumulator = allocator.directBuffer(1024 * 1024 * 1, 5 * 1024 * 1024);
     }
 
     @Override
@@ -48,10 +49,11 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 
         if (actionStage.equals(ActionStage.GETTING_COMMAND)) {
             System.out.println("ClientHandler " + actionStage);
-            byte firstByte = 0;
-            if (input.isReadable()) {
-                firstByte = input.readByte();
+            byte firstByte;
+            if (!input.isReadable()) {
+                return;
             }
+            firstByte = input.readByte();
             commandType = CommandType.getDataTypeFromByte(firstByte);
             System.out.println("ClientHandler " + commandType);
 
@@ -82,11 +84,15 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                         return;
                     }
                     fileLength = input.readLong();
+                    counter = fileLength;
                     actionStage = ActionStage.GETTING_FILE_NAME_LENGTH;
                     System.out.println("file size is " + fileLength);
                 }
                 if (actionStage.equals(ActionStage.GETTING_FILE_NAME_LENGTH)) {
                     System.out.println("ClientHandler " + actionStage);
+                    if (!input.isReadable()) {
+                        return;
+                    }
                     nameLength = input.readByte();
                     actionStage = ActionStage.GETTING_FILE_NAME;
                     System.out.println("file name length is " + nameLength);
@@ -105,34 +111,25 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                 }
                 if (actionStage.equals(ActionStage.GETTING_FILE_CONTENT)) {
                     System.out.println("ClientHandler " + actionStage);
-                    accumulator.writeBytes(input);
-                    input.release();
+
+                    accumulator.writeBytes(input, 0, (int) fileLength);
+
                     File file = new File("server/folder/" + clientFolder + "/" + fileName);
 
-                    try (
-                            BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file, true))
-                    ) {
-                        while (accumulator.readableBytes() > 0) {
-
+                    try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file, true))) {
+                        while (counter != 0) {
                             out.write(accumulator.readByte());
-                            System.out.println("current length of file: " + file.length());
-                            //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-                            if (file.length() >= fileLength) {
-                                actionStage = ActionStage.GETTING_COMMAND;
-                            }
+                            counter--;
+                            System.out.println("counter: " + counter);
                         }
-                        accumulator.clear();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
 
-
                     byte[] loginError = {3};
                     ByteBuf respond = Unpooled.copiedBuffer(loginError);
                     ctx.writeAndFlush(respond);
-
-
-
+                    actionStage = ActionStage.GETTING_COMMAND;
                 }
                 break;
             /* download file from the server*/
@@ -140,6 +137,9 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                 System.out.println("Command 'DOWNLOAD FILES' has been got");
                 if (actionStage.equals(ActionStage.GETTING_FILE_NAME_LENGTH)) {
                     System.out.println("ClientHandler " + actionStage);
+                    if (!input.isReadable()) {
+                        return;
+                    }
                     nameLength = input.readByte();
                     actionStage = ActionStage.GETTING_FILE_NAME;
                     System.out.println("file name length is " + nameLength);
@@ -182,6 +182,9 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                 System.out.println("Command 'DELETE FILES' has been got");
                 if (actionStage.equals(ActionStage.GETTING_FILE_NAME_LENGTH)) {
                     System.out.println("ClientHandler " + actionStage);
+                    if (!input.isReadable()) {
+                        return;
+                    }
                     nameLength = input.readByte();
                     actionStage = ActionStage.GETTING_FILE_NAME;
                 }

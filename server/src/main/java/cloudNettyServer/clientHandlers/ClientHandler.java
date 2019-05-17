@@ -121,10 +121,8 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 
                     try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file, true))) {
                         while (counter != 0) {
-                            if (accumulator.isReadable()) {
-                                out.write(accumulator.readByte());
-                                counter--;
-                            }
+                            out.write(accumulator.readByte());
+                            counter--;
                             System.out.println("counter: " + counter);
                         }
                     } catch (Exception e) {
@@ -160,11 +158,13 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 
                     file = new File("server/folder/" + clientFolder + "/" + fileName);
 
-                    if (fileLength <= 8192) {
+                    fileLength = file.length();
+
+                    if (fileLength > 8192) {
                         counter = fileLength / 8192;
                         remain = fileLength % 8192;
                     } else {
-                        counter = 1;
+                        counter = 0;
                     }
 
                     actionStage = ActionStage.SENDING_FILE_CONTENT;
@@ -177,7 +177,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                         ByteBuf tempBuf;
                         ByteBuf finTempBuf;
 
-                        if (counter == 1) {
+                        if (counter == 0) {
                             byte[] arr = new byte[(int) fileLength];
                             in.read(arr);
                             tempBuf = Unpooled.copiedBuffer(arr);
@@ -188,27 +188,28 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                             ctx.writeAndFlush(respond);
                         } else {
                             byte[] arr = new byte[8192];
-                            while (in.read(arr) > 0 && counter != 0) {
+                            while (counter != 0) {
+                                in.read(arr);
                                 tempBuf = Unpooled.copiedBuffer(arr);
                                 ctx.writeAndFlush(tempBuf);
                                 counter--;
+
+                                if (counter == 0) {
+                                    tempBuf.clear();
+                                }
                             }
+
                             byte[] finArr = new byte[(int) remain];
 
-                            in.read(finArr);
+                            in.read(finArr, 0, (int) remain);
                             finTempBuf = Unpooled.copiedBuffer(finArr);
                             ctx.writeAndFlush(finTempBuf);
+                            finTempBuf.clear();
 
                             byte[] backCommand = {3};
                             ByteBuf respond = Unpooled.copiedBuffer(backCommand);
                             ctx.writeAndFlush(respond);
                         }
-
-//                        byte[] arr = new byte[8192];
-//                        while (in.read(arr) > 0) {
-//                            tempBuf = Unpooled.copiedBuffer(arr);
-//                            ctx.writeAndFlush(tempBuf);
-//                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

@@ -151,14 +151,15 @@ public class Controller {
     public void downloadFile(ActionEvent actionEvent) {
         System.out.println("Action: downloadFile");
         String fileName = serverFile.getSelectionModel().getSelectedItem().getName();
+        long fileLength = serverFile.getSelectionModel().getSelectedItem().getSize();
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
                     byte byteCode;
-                    byteCode = new DownloadFiles().downloadFiles(out, in, CLIENT_FOLDER, fileName);
+                    byteCode = new DownloadFiles().downloadFiles(out, in, CLIENT_FOLDER, fileName, fileLength);
                     if (byteCode == 3) {
-                        resetServerSideView();
+                        resetClientSideView();
                     }
                 } catch (IOException e) {
                     e.printStackTrace();

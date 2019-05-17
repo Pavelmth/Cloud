@@ -24,6 +24,8 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
     private int clientFolder;
     File file;
 
+    private final int BUF_CAPACITY = 512;
+
     private long counter;
     private long remain;
 
@@ -84,7 +86,6 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                         return;
                     }
                     fileLength = input.readLong();
-                    counter = fileLength;
                     actionStage = ActionStage.GETTING_FILE_NAME_LENGTH;
                     System.out.println("file size is " + fileLength);
                 }
@@ -114,20 +115,54 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                 }
                 if (actionStage.equals(ActionStage.GETTING_FILE_CONTENT)) {
                     System.out.println("ClientHandler " + actionStage);
-                    if (!input.isReadable()) {
-                        return;
-                    }
-                    accumulator.writeBytes(input);
+
+                    counter = fileLength / BUF_CAPACITY;
+                    remain = fileLength % BUF_CAPACITY;
 
                     try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file, true))) {
-                        while (counter != 0) {
-                            out.write(accumulator.readByte());
-                            counter--;
-                            System.out.println("counter: " + counter);
+                        if (counter == 0) {
+                            byte[] arr = new byte[(int) fileLength];
+                            if (input.readableBytes() < fileLength) {
+                                return;
+                            }
+                            input.readBytes(arr, 0, (int) fileLength);
+                            out.write(arr);
+                        } else {
+                            byte[] arr = new byte[BUF_CAPACITY];
+                            while (counter != 0) {
+                                if (input.readableBytes() < BUF_CAPACITY) {
+                                    return;
+                                }
+                                input.readBytes(arr, 0 , BUF_CAPACITY);
+                                out.write(arr);
+                                counter--;
+                            }
+                            byte[] arrRemain = new byte[(int) remain];
+                            if (input.readableBytes() < remain) {
+                                return;
+                            }
+                            input.readBytes(arrRemain, 0 , (int) remain);
+                            out.write(arrRemain);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
+
+
+//                    if (!input.isReadable()) {
+//                        return;
+//                    }
+//                    accumulator.writeBytes(input);
+//
+//                    try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file, true))) {
+//                        while (counter != 0) {
+//                            out.write(accumulator.readByte());
+//                            counter--;
+//                            System.out.println("counter: " + counter);
+//                        }
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
 
                     byte[] loginError = {3};
                     ByteBuf respond = Unpooled.copiedBuffer(loginError);
@@ -160,9 +195,9 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 
                     fileLength = file.length();
 
-                    if (fileLength > 8192) {
-                        counter = fileLength / 8192;
-                        remain = fileLength % 8192;
+                    if (fileLength > BUF_CAPACITY) {
+                        counter = fileLength / BUF_CAPACITY;
+                        remain = fileLength % BUF_CAPACITY;
                     } else {
                         counter = 0;
                     }
@@ -187,7 +222,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                             ByteBuf respond = Unpooled.copiedBuffer(backCommand);
                             ctx.writeAndFlush(respond);
                         } else {
-                            byte[] arr = new byte[8192];
+                            byte[] arr = new byte[BUF_CAPACITY];
                             while (counter != 0) {
                                 in.read(arr);
                                 tempBuf = Unpooled.copiedBuffer(arr);

@@ -87,7 +87,6 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                 start = System.currentTimeMillis();
 
                 if (actionStage.equals(ActionStage.GETTING_FILE_LENGTH)) {
-                    System.out.println("ClientHandler " + actionStage);
                     if (input.readableBytes() < 8) {
                         return;
                     }
@@ -96,19 +95,15 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                     counter = fileLength;
 
                     actionStage = ActionStage.GETTING_FILE_NAME_LENGTH;
-                    System.out.println("file size is " + fileLength);
                 }
                 if (actionStage.equals(ActionStage.GETTING_FILE_NAME_LENGTH)) {
-                    System.out.println("ClientHandler " + actionStage);
                     if (!input.isReadable()) {
                         return;
                     }
                     nameLength = input.readByte();
                     actionStage = ActionStage.GETTING_FILE_NAME;
-                    System.out.println("file name length is " + nameLength);
                 }
                 if (actionStage.equals(ActionStage.GETTING_FILE_NAME)) {
-                    System.out.println("ClientHandler " + actionStage);
                     //waiting for all the letters of the file name
                     if (input.readableBytes() < nameLength) {
                         return;
@@ -120,15 +115,8 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                     file = new File("server/folder/" + clientFolder + "/" + fileName);
 
                     actionStage = ActionStage.GETTING_FILE_CONTENT;
-                    System.out.println("File name: " + fileName);
-
                 }
                 if (actionStage.equals(ActionStage.GETTING_FILE_CONTENT)) {
-                    System.out.println("ClientHandler " + actionStage);
-
-
-
-
                     try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file, true))) {
                         while (counter != 0) {
                             if (!input.isReadable()) {
@@ -144,9 +132,10 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                     byte[] loginError = {3};
                     ByteBuf respond = Unpooled.copiedBuffer(loginError);
                     ctx.writeAndFlush(respond);
-                    actionStage = ActionStage.GETTING_COMMAND;
 
                     System.out.println("Time " + (System.currentTimeMillis() - start));
+
+                    actionStage = ActionStage.GETTING_COMMAND;
                 }
                 break;
             /* download file from the server*/

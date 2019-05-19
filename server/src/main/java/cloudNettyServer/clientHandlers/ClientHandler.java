@@ -6,10 +6,7 @@ import cloudNettyServer.fileWork.DeleteFile;
 import cloudNettyServer.fileWork.UserFile;
 import cloudNettyServer.fileWork.UserFiles;
 import io.netty.buffer.*;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.DefaultFileRegion;
-import io.netty.channel.FileRegion;
+import io.netty.channel.*;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -24,7 +21,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
     private int clientFolder;
     File file;
 
-    private final int BUF_CAPACITY = 512;
+    private final int BUF_CAPACITY = 8192;
 
     private long counter;
     private long remain;
@@ -176,6 +173,23 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                 if (actionStage.equals(ActionStage.SENDING_FILE_CONTENT)) {
                     System.out.println("ClientHandler " + actionStage);
 
+//                    try (FileInputStream in = new FileInputStream(file)) {
+//                        FileRegion region = new DefaultFileRegion(in.getChannel(), 0, file.length());
+//                        ctx.writeAndFlush(region).addListener(
+//                                new ChannelFutureListener() {
+//                                    @Override
+//                                    public void operationComplete(ChannelFuture future)
+//                                            throws Exception {
+//                                        if (!future.isSuccess()) {
+//                                            Throwable cause = future.cause();
+//                                            System.out.println("файл не отправился");
+//                                        }
+//                                    }
+//                                });
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+
                     try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(file))) {
                         ByteBuf tempBuf;
                         ByteBuf finTempBuf;
@@ -195,6 +209,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                                 in.read(arr);
                                 tempBuf = Unpooled.copiedBuffer(arr);
                                 ctx.writeAndFlush(tempBuf);
+                                tempBuf.clear();
                                 counter--;
 
                                 if (counter == 0) {
@@ -208,14 +223,14 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                             finTempBuf = Unpooled.copiedBuffer(finArr);
                             ctx.writeAndFlush(finTempBuf);
                             finTempBuf.clear();
-
-                            byte[] backCommand = {3};
-                            ByteBuf respond = Unpooled.copiedBuffer(backCommand);
-                            ctx.writeAndFlush(respond);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
+
+                    byte[] backCommand = {3};
+                    ByteBuf respond = Unpooled.copiedBuffer(backCommand);
+                    ctx.writeAndFlush(respond);
 
                     actionStage = ActionStage.GETTING_COMMAND;
                 }

@@ -29,6 +29,9 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
     private long counter;
     private long remain;
 
+    //for checking time
+    long start;
+
     private ByteBuf accumulator;
 
     @Override
@@ -80,12 +83,18 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
             /* get a file from a client and upload the file to the server */
             case SEND_FILES:
                 System.out.println("Command 'SEND FILES' has been got");
+
+                start = System.currentTimeMillis();
+
                 if (actionStage.equals(ActionStage.GETTING_FILE_LENGTH)) {
                     System.out.println("ClientHandler " + actionStage);
                     if (input.readableBytes() < 8) {
                         return;
                     }
                     fileLength = input.readLong();
+
+                    counter = fileLength;
+
                     actionStage = ActionStage.GETTING_FILE_NAME_LENGTH;
                     System.out.println("file size is " + fileLength);
                 }
@@ -112,64 +121,32 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 
                     actionStage = ActionStage.GETTING_FILE_CONTENT;
                     System.out.println("File name: " + fileName);
+
                 }
                 if (actionStage.equals(ActionStage.GETTING_FILE_CONTENT)) {
                     System.out.println("ClientHandler " + actionStage);
 
-                    counter = fileLength / BUF_CAPACITY;
-                    remain = fileLength % BUF_CAPACITY;
 
-                    try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file, true));) {
-                        if (counter == 0) {
-                            byte[] arr = new byte[(int) fileLength];
-                            if (input.readableBytes() < fileLength) {
+
+
+                    try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file, true))) {
+                        while (counter != 0) {
+                            if (!input.isReadable()) {
                                 return;
                             }
-                            input.readBytes(arr, 0, (int) fileLength);
-                            out.write(arr);
-                        } else {
-                            while (counter != 0) {
-                                byte[] arr = new byte[BUF_CAPACITY];
-                                if (input.readableBytes() < BUF_CAPACITY) {
-                                    return;
-                                }
-                                input.readBytes(arr, 0 , BUF_CAPACITY);
-                                out.write(arr);
-                                counter--;
-                            }
-                            byte[] arrRemain = new byte[(int) remain];
-                            if (input.readableBytes() < remain) {
-                                return;
-                            }
-                            input.readBytes(arrRemain, 0 , (int) remain);
-                            out.write(arrRemain);
+                            out.write(input.readByte());
+                            counter--;
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
 
-
-//                    if (!input.isReadable()) {
-//                        return;
-//                    }
-//
-//                    counter = fileLength;
-//                    accumulator.writeBytes(input);
-//
-//                    try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file, true))) {
-//                        while (counter != 0) {
-//                            out.write(accumulator.readByte());
-//                            counter--;
-//                            System.out.println("counter: " + counter);
-//                        }
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                    }
-
                     byte[] loginError = {3};
                     ByteBuf respond = Unpooled.copiedBuffer(loginError);
                     ctx.writeAndFlush(respond);
                     actionStage = ActionStage.GETTING_COMMAND;
+
+                    System.out.println("Time " + (System.currentTimeMillis() - start));
                 }
                 break;
             /* download file from the server*/

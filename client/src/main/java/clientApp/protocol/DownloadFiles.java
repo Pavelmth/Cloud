@@ -4,38 +4,56 @@ import java.io.*;
 import java.net.Socket;
 
 public class DownloadFiles {
-    public DownloadFiles(DataOutputStream buffOut, DataInputStream buffIn, String clientFolder, String fileName) throws IOException {
-        try {
-            long start = System.currentTimeMillis();
-            //* create file
-            File file = new File(clientFolder + fileName);
+    private byte byteCod = -1;
+    private long counter = 0;
+    private long remain;
+    private final int BUF_CAPACITY = 8192;
 
-            FileOutputStream outFile = new FileOutputStream(file);
+    public byte downloadFiles(DataOutputStream out, DataInputStream in, String clientFolder, String fileName, long fileLength) throws IOException {
+        long start = System.currentTimeMillis();
+        //* create file
+        File file = new File(clientFolder + fileName);
 
-            /**/
-            //sending command "download file"
-            buffOut.write(16);
-            buffOut.flush();
-            //send file name length
-            buffOut.writeInt(fileName.length());
-            System.out.println(fileName + " " + fileName.length());
-            buffOut.flush();
-            //sending name of file
-            buffOut.write(fileName.getBytes());
-            buffOut.flush();
-            /**/
+        FileOutputStream outFile = new FileOutputStream(file);
 
-            byte[] arr = new byte[8192];
-            int bufLen;
-            while (( bufLen = buffIn.read(arr)) > 0){
-                outFile.write(arr, 0, bufLen);
+        /**/
+        //sending command "download file"
+        out.write(16);
+        out.flush();
+        //send file name length
+        out.writeByte(fileName.length());
+        System.out.println(fileName + " " + fileName.length());
+        out.flush();
+        //sending name of file
+        out.write(fileName.getBytes());
+        out.flush();
+        /**/
+
+        if (fileLength <= BUF_CAPACITY) {
+            byte[] arr = new byte[(int) fileLength];
+            in.read(arr, 0, (int) fileLength);
+            outFile.write(arr);
+        } else {
+            counter = fileLength / BUF_CAPACITY;
+            System.out.println(counter);
+            remain = fileLength % BUF_CAPACITY;
+
+            byte[] arr = new byte[BUF_CAPACITY];
+            while (in.read(arr, 0, BUF_CAPACITY) == BUF_CAPACITY && counter != 0) {
+                outFile.write(arr);
+                counter--;
             }
-
-            System.out.println("Time " + (System.currentTimeMillis() - start));
-
-            outFile.close();
-        } finally {
-
+            byte[] arrRemain = new byte[(int) remain];
+            in.read(arrRemain, 0, (int) remain);
+            outFile.write(arrRemain);
         }
+
+        System.out.println("Time " + (System.currentTimeMillis() - start));
+
+        outFile.close();
+
+        byteCod = in.readByte();
+        System.out.println("From the server has been received command: " + byteCod);
+        return byteCod;
     }
 }

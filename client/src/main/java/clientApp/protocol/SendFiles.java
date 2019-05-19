@@ -24,7 +24,7 @@ public class SendFiles {
         System.out.println("The file length '" + file.length() + "' has been sent");
 
         //sending file name length
-        out.writeInt(fileName.length());
+        out.writeByte(fileName.length());
         out.flush();
         System.out.println("The file name length '" + fileName.length() + "' has been sent");
 

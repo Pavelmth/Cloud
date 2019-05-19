@@ -120,21 +120,15 @@ public class Controller {
 
     public void sendFile(ActionEvent actionEvent) {
         System.out.println("Action: sendFile");
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    byte byteCode;
-                    byteCode = new SendFiles().sendFiles(out, in, CLIENT_FOLDER, clientFile.getSelectionModel().getSelectedItem().getName());
-                    if (byteCode == 3) {
-                        resetServerSideView();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        try {
+            byte byteCode;
+            byteCode = new SendFiles().sendFiles(out, in, CLIENT_FOLDER, clientFile.getSelectionModel().getSelectedItem().getName());
+            if (byteCode == 3) {
+                resetServerSideView();
             }
-        }).start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void deleteFileClient(ActionEvent actionEvent) {
@@ -152,20 +146,15 @@ public class Controller {
         System.out.println("Action: downloadFile");
         String fileName = serverFile.getSelectionModel().getSelectedItem().getName();
         long fileLength = serverFile.getSelectionModel().getSelectedItem().getSize();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    byte byteCode;
-                    byteCode = new DownloadFiles().downloadFiles(out, in, CLIENT_FOLDER, fileName, fileLength);
-                    if (byteCode == 3) {
-                        resetClientSideView();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        try {
+            byte byteCode;
+            byteCode = new DownloadFiles().downloadFiles(out, in, CLIENT_FOLDER, fileName, fileLength);
+            if (byteCode == 3) {
+                resetClientSideView();
             }
-        }).start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void deleteFileServer(ActionEvent actionEvent) {

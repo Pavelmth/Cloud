@@ -1,5 +1,6 @@
 package clientApp;
 
+import clientApp.fileWork.DeleteFile;
 import clientApp.fileWork.UserFile;
 import clientApp.fileWork.UserFiles;
 import clientApp.protocol.*;
@@ -133,8 +134,14 @@ public class Controller {
 
     public void deleteFileClient(ActionEvent actionEvent) {
         System.out.println("Action: deleteFileClient");
-        new DeleteClientFile(clientFile.getSelectionModel().getSelectedItem().getName());
-        resetClientSideView();
+        boolean isDel = new DeleteFile().deleteFile(CLIENT_FOLDER, clientFile.getSelectionModel().getSelectedItem().getName());
+        if (isDel) {
+            resetClientSideView();
+            System.out.println("Файл был удален");
+        } else {
+            System.out.println("Что-то пошло не так");
+        }
+
     }
 
     public void resetClient(ActionEvent actionEvent) {

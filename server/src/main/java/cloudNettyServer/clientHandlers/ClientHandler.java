@@ -253,7 +253,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                 }
                 if (actionStage.equals(ActionStage.DELETE_FILES)) {
                     System.out.println("ClientHandler " + actionStage);
-                    boolean isDeleted = new DeleteFile().deleteFile(String.valueOf(clientFolder), fileName);
+                    boolean isDeleted = new DeleteFile().deleteFile(SERVER_FOLDERS + clientFolder, fileName);
                     if (isDeleted) {
                         byte[] loginError = {3};
                         ByteBuf respond = Unpooled.copiedBuffer(loginError);

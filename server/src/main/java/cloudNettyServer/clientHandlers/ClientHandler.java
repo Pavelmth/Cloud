@@ -29,14 +29,6 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
     //for checking time
     long start;
 
-    private ByteBuf accumulator;
-
-    @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        ByteBufAllocator allocator = ctx.alloc();
-        accumulator = allocator.directBuffer(1024 * 1024 * 1, 5 * 1024 * 1024);
-    }
-
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ByteBuf input = ((ByteBuf) msg);

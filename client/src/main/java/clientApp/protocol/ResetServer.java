@@ -23,7 +23,7 @@ public class ResetServer {
         in.read(msg);
         String str = new String(msg);
 
-        String[] list = str.split("[ ]+");
+        String[] list = str.split(":");
         for (int i = 0; i < list.length; i = i + 2) {
             userFiles.add(new UserFile(list[i], Long.parseLong(list[(1 + i)])));
         }

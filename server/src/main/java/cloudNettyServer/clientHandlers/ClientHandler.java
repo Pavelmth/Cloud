@@ -275,7 +275,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                     StringBuilder stringBuilder = new StringBuilder();
                     for (UserFile o :
                             fileList) {
-                        stringBuilder.append(" " + o.getName() + " " + o.getSize());
+                        stringBuilder.append(":" + o.getName() + ":" + o.getSize());
                     }
                     stringBuilder.delete(0, 1);
                     byte[] arr = stringBuilder.toString().getBytes();

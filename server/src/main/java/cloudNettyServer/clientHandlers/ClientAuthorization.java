@@ -49,8 +49,8 @@ public class ClientAuthorization extends ChannelInboundHandlerAdapter {
                     ctx.fireChannelRead(bufFolder);
                     actionStage = ActionStage.AUTHORIZED;
                     //if everything OK send cod '1'
-                    byte [] loginPasswordError = {1};
-                    ByteBuf respond = Unpooled.copiedBuffer(loginPasswordError);
+                    byte [] loginPasswordResp = {1};
+                    ByteBuf respond = Unpooled.copiedBuffer(loginPasswordResp);
                     ctx.writeAndFlush(respond);
                     buf.release();
                 } else {

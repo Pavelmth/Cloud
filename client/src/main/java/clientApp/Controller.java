@@ -188,7 +188,7 @@ public class Controller {
 
     private void resetClientSideView() {
         clientFile.getItems().clear();
-        UserFiles userFiles = new UserFiles();
+        UserFiles userFiles = new UserFiles(CLIENT_FOLDER);
         clientFile.getItems().addAll(userFiles.getUseFiles());
     }
 

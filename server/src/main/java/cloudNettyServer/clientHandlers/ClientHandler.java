@@ -15,6 +15,8 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
     private CommandType commandType = CommandType.EMPTY;
     private ActionStage actionStage = ActionStage.GETTING_CLIENT_FOLDER;
 
+    private final String SERVER_FOLDERS = "server/folder/";
+
     private long fileLength;
     private byte nameLength;
     private String fileName = null;
@@ -263,7 +265,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                 System.out.println("Command 'RESET' has been got");
                 if (actionStage.equals(ActionStage.SENDING_FILE_NAME_LIST)) {
                     System.out.println("ClientHandler " + actionStage);
-                    ArrayList<UserFile> fileList = new UserFiles(String.valueOf(clientFolder)).getUseFiles();
+                    ArrayList<UserFile> fileList = new UserFiles(SERVER_FOLDERS + clientFolder).getUseFiles();
                     StringBuilder stringBuilder = new StringBuilder();
                     for (UserFile o :
                             fileList) {

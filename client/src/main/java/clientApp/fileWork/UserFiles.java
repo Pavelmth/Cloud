@@ -4,16 +4,20 @@ import java.io.File;
 import java.util.ArrayList;
 
 public class UserFiles {
-    private final File USER_FOLDER_PATH = new File("client/folder/");
+    private String clientFolder;
 
     //Collection is used for representing files in TableView
     private ArrayList<UserFile> useFiles = new ArrayList<>();
 
-    private int fileQuantity = USER_FOLDER_PATH.listFiles().length;
+    public UserFiles(String clientFolder) {
+        this.clientFolder = clientFolder;
+    }
 
     private void scanFiles() {
+        File path = new File(clientFolder);
+        int fileQuantity = path.listFiles().length;
         for (int i = 0; i < fileQuantity; i++) {
-            useFiles.add(new UserFile(USER_FOLDER_PATH.listFiles()[i].getName(), USER_FOLDER_PATH.listFiles()[i].length()));
+            useFiles.add(new UserFile(path.listFiles()[i].getName(), path.listFiles()[i].length()));
         }
     }
 
